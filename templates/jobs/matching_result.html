@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Analysis — MatchRank AI{% endblock %}
+
+{% block body %}
+
+<div class="app-container">
+
+    <main class="main-content">
+
+        <h1>Resume Analysis Result</h1>
+
+        <div class="result-card">
+
+            <h2>{{ resume.candidate_name }}</h2>
+
+            <p>
+                <strong>Email:</strong>
+                {{ resume.email }}
+            </p>
+
+            <p>
+                <strong>Applied Job:</strong>
+                {{ job.title }}
+            </p>
+
+            <p>
+                <strong>Experience:</strong>
+                {{ resume.experience_years }} years
+            </p>
+
+        </div>
+
+
+        <div class="result-card">
+
+            <h2>Matching Analysis</h2>
+
+            <p>
+                <strong>Semantic Skill Score:</strong>
+                {{ match.semantic_skill_score|floatformat:2 }}
+            </p>
+
+            <p>
+                <strong>Skill Coverage:</strong>
+                {{ match.skill_coverage|floatformat:2 }}
+            </p>
+
+            <p>
+                <strong>TF-IDF Similarity:</strong>
+                {{ match.tfidf_similarity|floatformat:2 }}
+            </p>
+
+            <p>
+                <strong>Experience Match:</strong>
+                {{ match.experience_match|floatformat:2 }}
+            </p>
+
+            <p>
+                <strong>Education:</strong>
+                {{ match.education_encoded }}
+            </p>
+
+            <p>
+                <strong>Certification:</strong>
+                {% if match.certification_present %}
+                    Present
+                {% else %}
+                    Not Present
+                {% endif %}
+            </p>
+
+        </div>
+
+
+        <div class="result-card">
+
+            <h2>ML Model Results</h2>
+
+            <p>
+                <strong>Random Forest Probability:</strong>
+                {{ match.rf_prediction|floatformat:2 }}
+            </p>
+
+            <p>
+                <strong>XGBoost Probability:</strong>
+                {{ match.xgb_prediction|floatformat:2 }}
+            </p>
+
+            <h2>
+                Final Score:
+                {{ match.final_score|floatformat:2 }}
+            </h2>
+
+        </div>
+
+
+        <div class="pipeline-actions">
+
+            <a href="{% url 'upload_resume' %}" class="btn btn-primary">
+                Analyze Another Resume
+            </a>
+
+            <a href="{% url 'job_list' %}" class="btn-secondary">
+                View Jobs
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}

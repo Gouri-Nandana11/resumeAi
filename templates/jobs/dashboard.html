@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — MatchRank AI{% endblock %}
+
+{% block body %}
+
+<div class="app-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <div class="brand-icon">⚡</div>
+
+            <div class="brand-text">
+                <h1>MatchRank AI</h1>
+                <span>Resume Intelligence</span>
+            </div>
+        </div>
+
+        <nav>
+
+            <div class="nav-section-title">Core Modules</div>
+
+            <a href="{% url 'dashboard' %}" class="nav-link active">
+                Dashboard
+            </a>
+
+            <a href="{% url 'upload_resume' %}" class="nav-link">
+                Upload Resume
+            </a>
+
+            <a href="#" class="nav-link">
+                Candidate Rankings
+            </a>
+
+
+            <div class="nav-section-title">Directory</div>
+
+            <a href="{% url 'post_job' %}" class="nav-link">
+                Post Job
+            </a>
+
+            <a href="{% url 'job_list' %}" class="nav-link">
+                Job Catalog
+            </a>
+
+            <a href="#" class="nav-link">
+                Candidates
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+            Signed in as {{ user.username }}
+            <br>
+
+            <a href="{% url 'logout' %}" style="color:#fff;">
+                Log out
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+
+        <!-- Header -->
+        <header class="top-navbar">
+
+            <div class="page-title-area">
+
+                <h2>Dashboard</h2>
+
+                <p>
+                    Overview of resume evaluations, jobs, and candidate rankings
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- Dashboard Content -->
+        <main class="content-body">
+
+            <!-- Statistics -->
+            <div class="stat-grid">
+
+                <!-- Resumes -->
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Resumes Parsed
+                    </div>
+
+                    <div class="stat-value">
+                        {{ resume_count }}
+                    </div>
+
+                </div>
+
+
+                <!-- Jobs -->
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Job Postings
+                    </div>
+
+                    <div class="stat-value">
+                        {{ job_count }}
+                    </div>
+
+                </div>
+
+
+                <!-- Matches -->
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Matches Computed
+                    </div>
+
+                    <div class="stat-value">
+                        {{ match_count }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Description -->
+            <p style="color:#6b7280; margin-top:25px;">
+                Overview of resumes, job postings, and matching results.
+            </p>
+
+        </main>
+
+    </div>
+
+</div>
+
+{% endblock %}

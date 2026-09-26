@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Post a Job — MatchRank AI{% endblock %}
+{% block body %}
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>MatchRank AI</h1>
+        <span>Resume Intelligence</span>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-section-title">Core Modules</div>
+      <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+      <a href="{% url 'upload_resume' %}" class="nav-link">Upload Resume</a>
+      <a href="#" class="nav-link">Candidate Rankings</a>
+
+      <div class="nav-section-title">Directory</div>
+      <a href="{% url 'post_job' %}" class="nav-link active">Post Job</a>
+      <a href="{% url 'job_list' %}" class="nav-link">Job Catalog</a>
+      <a href="#" class="nav-link">Candidates</a>
+    </nav>
+    <div class="sidebar-footer">
+      Signed in as {{ user.username }}<br>
+      <a href="{% url 'logout' %}" style="color:#fff;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="top-navbar">
+      <div class="page-title-area">
+        <h2>Post a Job</h2>
+        <p>Create a new opening for candidates to be matched against</p>
+      </div>
+    </header>
+
+    <main class="content-body">
+      <div class="pipeline-card" style="max-width:640px;">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="field">
+            <label for="{{ form.title.id_for_label }}">Title:</label>
+            {{ form.title }}
+            {% if form.title.errors %}<p class="field-errors">{{ form.title.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.description.id_for_label }}">Description:</label>
+            {{ form.description }}
+            {% if form.description.errors %}<p class="field-errors">{{ form.description.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.required_skills.id_for_label }}">Required skills:</label>
+            <div class="field-row">
+              {{ form.required_skills }}
+              <p class="field-hint"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="{{ form.experience_required.id_for_label }}">Experience required:</label>
+            <div class="field-row">
+              {{ form.experience_required }}
+              <p class="field-hint">Years of experience required</p>
+            </div>
+            {% if form.experience_required.errors %}<p class="field-errors">{{ form.experience_required.errors.0 }}</p>{% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:auto; margin-top:8px;">Post Job</button>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

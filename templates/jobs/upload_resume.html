@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Upload & Match Resume — MatchRank AI{% endblock %}
+{% block body %}
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>MatchRank AI</h1>
+        <span>Resume Intelligence</span>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-section-title">Core Modules</div>
+      <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+      <a href="{% url 'upload_resume' %}" class="nav-link active">Upload Resume</a>
+      <a href="#" class="nav-link">Candidate Rankings</a>
+
+      <div class="nav-section-title">Directory</div>
+      <a href="{% url 'post_job' %}" class="nav-link">Post Job</a>
+      <a href="{% url 'job_list' %}" class="nav-link">Job Catalog</a>
+      <a href="#" class="nav-link">Candidates</a>
+    </nav>
+    <div class="sidebar-footer">
+      Signed in as {{ user.username }}<br>
+      <a href="{% url 'logout' %}" style="color:#fff;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="top-navbar">
+      <div class="page-title-area">
+        <h2>Upload & Match Resume</h2>
+        <p>Select a target job description or compare against all catalog jobs for top-5 recommendations</p>
+      </div>
+    </header>
+
+    <main class="content-body">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="success-alert">✅ {{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="pipeline-card">
+        <h3>⬆️ Resume Evaluation Pipeline</h3>
+
+        <form id="resume-upload-form" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <span class="step-label">1. Select Target Job Description:</span>
+          <select name="job_id" class="job-select">
+            <option value="">✨ Compare with All Jobs (Top 5 Job Recommendations)</option>
+            {% for job in jobs %}
+              <option value="{{ job.id }}">{{ job.title }}</option>
+            {% endfor %}
+          </select>
+          <p class="helper-text">💡 Leave empty to compare the resume against all {{ jobs.count }}+ jobs and get Top 5 Recommended Positions.</p>
+
+          <div class="tab-row">
+            <div class="tab-btn active" id="tab-upload">📁 Upload Document (PDF / DOCX / TXT)</div>
+            <div class="tab-btn" id="tab-paste">📝 Paste Resume Text</div>
+          </div>
+
+          <span class="step-label">2. Upload Candidate Resume File:</span>
+          <div class="dropzone" id="dropzone">
+            <div class="dropzone-icon">⬆️</div>
+            <h4>Click or Drag & Drop Resume Here</h4>
+            <p id="dropzone-filename">Supported Formats: PDF , DOCX , TXT • Max 15MB</p>
+            <input type="file" name="resumes" id="resume-file-input" accept=".pdf,.docx,.txt" style="display:none;" required>
+          </div>
+
+          <div class="pipeline-actions">
+            <a href="{% url 'job_list' %}" class="btn-ghost">View Job Catalog</a>
+            <button type="reset" id="cancel-btn" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="width:auto;">Analyze</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('resume-file-input');
+  const filenameText = document.getElementById('dropzone-filename');
+  const cancelBtn = document.getElementById('cancel-btn');
+  const defaultFilenameText = 'Supported Formats: PDF (PyPDF2), DOCX (python-docx), TXT • Max 15MB';
+
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      filenameText.textContent = fileInput.files[0].name;
+    }
+  });
+
+  ['dragover', 'dragenter'].forEach(evt =>
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    })
+  );
+
+  ['dragleave', 'drop'].forEach(evt =>
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    })
+  );
+
+  dropzone.addEventListener('drop', e => {
+    if (e.dataTransfer.files.length > 0) {
+      fileInput.files = e.dataTransfer.files;
+      filenameText.textContent = e.dataTransfer.files[0].name;
+    }
+  });
+
+  // "Cancel" clears the dropzone label back to its default state (type="reset" already clears the file input itself)
+  cancelBtn.addEventListener('click', () => {
+    filenameText.textContent = defaultFilenameText;
+  });
+</script>
+{% endblock %}

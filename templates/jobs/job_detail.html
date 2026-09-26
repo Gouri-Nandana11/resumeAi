@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} — MatchRank AI{% endblock %}
+{% block body %}
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>MatchRank AI</h1>
+        <span>Resume Intelligence</span>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-section-title">Core Modules</div>
+      <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+      <a href="{% url 'upload_resume' %}" class="nav-link">Upload Resume</a>
+      <a href="#" class="nav-link">Candidate Rankings</a>
+
+      <div class="nav-section-title">Directory</div>
+      <a href="{% url 'post_job' %}" class="nav-link">Post Job</a>
+      <a href="{% url 'job_list' %}" class="nav-link active">Job Catalog</a>
+      <a href="#" class="nav-link">Candidates</a>
+    </nav>
+    <div class="sidebar-footer">
+      Signed in as {{ user.username }}<br>
+      <a href="{% url 'logout' %}" style="color:#fff;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="top-navbar">
+      <div class="page-title-area">
+        <h2>{{ job.title }}</h2>
+        <p>{{ job.experience_required }} years experience required</p>
+      </div>
+    </header>
+
+    <main class="content-body">
+      <div class="stat-card" style="max-width:700px; margin-bottom:20px;">
+        <p>{{ job.description }}</p>
+        <p><strong>Required skills:</strong> {{ job.required_skills }}</p>
+        <a href="{% url 'upload_resume' job.id %}" class="nav-link" style="display:inline-block; margin-top:8px;">Upload Resumes for this Job</a>
+      </div>
+
+      <h3 style="margin-bottom:12px;">Applicants ({{ resumes|length }})</h3>
+      <div class="stat-grid">
+        {% for r in resumes %}
+        <div class="stat-card">
+          <div class="stat-label">{{ r.candidate_name|default:"Unnamed candidate" }}</div>
+          <p style="font-size:0.85rem; color:#6b7280;">{{ r.email }}</p>
+          <p style="font-size:0.85rem;"><strong>Experience:</strong> {{ r.experience_years }} yrs</p>
+        </div>
+        {% empty %}
+        <p style="color:#6b7280;">No applicants yet.</p>
+        {% endfor %}
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
