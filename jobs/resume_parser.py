@@ -55,20 +55,65 @@ def extract_email(text):
     return match.group(0) if match else ''
 
 
+# Words that mean "this line is a heading / contact / place, not a person's name"
+NAME_STOPWORDS = {
+    'resume', 'curriculum', 'vitae', 'cv', 'summary', 'objective', 'profile', 'education',
+    'experience', 'skills', 'projects', 'project', 'declaration', 'contact', 'address', 'phone',
+    'mobile', 'email', 'linkedin', 'github', 'portfolio', 'college', 'university', 'institute',
+    'school', 'department', 'engineering', 'technology', 'report', 'message', 'messages', 'inbox',
+    'gmail', 'page', 'certifications', 'achievements', 'references', 'about', 'career',
+    'personal', 'details', 'profit', 'loss', 'batch',
+    'dear', 'hello', 'hi', 'regards', 'thanks', 'subject', 'from', 'to',
+}
+
+# Icon labels that PDF text extraction leaves next to contact details ("... Envelope", "Map-marker-alt")
+ICON_WORDS = r'\b(envelope|map-marker-alt|linkedin|github|phone|mobile|call|location|email|e-mail|address)\b'
+
+
+def _name_from_line(line):
+    """Strip emails, links, phone numbers and icon labels; keep the line only if it looks like a name."""
+    line = re.sub(r'[\w.+-]+@[\w-]+(\.[\w-]+)+', ' ', line)                      # emails
+    line = re.sub(r'(https?://|www\.)\S+', ' ', line, flags=re.I)                  # links
+    line = re.sub(r'\b[\w.-]+\.(com|in|org|net|io)\S*', ' ', line, flags=re.I)     # linkedin.com/in/...
+    line = re.sub(r'\+?\d[\d\s()\-]{6,}\d', ' ', line)                           # phone numbers
+    line = re.sub(ICON_WORDS, ' ', line, flags=re.I)
+    line = re.sub(r'[|\u2022\u00b7,;:/\\]+', ' ', line)
+    words = line.split()
+
+    if not 2 <= len(words) <= 4:
+        return ''
+    for w in words:
+        if not re.fullmatch(r"[A-Za-z][A-Za-z.'\-]*", w):
+            return ''
+        if w.lower().strip('.') in NAME_STOPWORDS:
+            return ''
+    return ' '.join(w.capitalize() if (w.isupper() or w.islower()) else w for w in words)
+
+
+def _name_from_email(email):
+    local = email.split('@')[0] if email else ''
+    parts = [p for p in re.split(r'[._\-]+', re.sub(r'\d+', '', local)) if len(p) > 1]
+    return ' '.join(p.capitalize() for p in parts) if len(parts) >= 2 else ''
+
+
+def _name_from_filename(filename):
+    stem = filename.rsplit('.', 1)[0]
+    stem = re.sub(r'_[A-Za-z0-9]{7}$', '', stem)                 # suffix Django adds to duplicate file names
+    stem = re.sub(r'[_\-.\d]+', ' ', stem)
+    stem = re.sub(r'\b(resume|cv|curriculum|vitae|final|copy|updated|new)\b', ' ', stem, flags=re.I)
+    stem = ' '.join(stem.split())
+    # a long leftover is a document title, not a person's name
+    return stem.title() if re.search(r'[A-Za-z]{2}', stem) and len(stem.split()) <= 4 else ''
+
+
 def extract_candidate_name(text, fallback_filename=''):
-
-    # Best-effort: assume the first non-empty line is the name
-    for line in text.strip().split('\n'):
-
-        line = line.strip()
-
-        if line and len(line.split()) <= 5 and '@' not in line:
-            return line
-
-    # Fallback: use filename without extension
-    return fallback_filename.rsplit(
-        '.', 1
-    )[0].replace('_', ' ').title()
+    """Name from the first lines of the resume; falls back to the email, then the file name."""
+    lines = [l.strip() for l in (text or '').split('\n') if l.strip()]
+    for line in lines[:6]:
+        name = _name_from_line(line)
+        if name:
+            return name
+    return _name_from_email(extract_email(text or '')) or _name_from_filename(fallback_filename)
 
 
 def extract_experience_years(text):

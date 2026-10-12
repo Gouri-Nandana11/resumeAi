@@ -39,8 +39,8 @@
       <div class="stat-card" style="max-width:700px; margin-bottom:20px;">
         <p>{{ job.description }}</p>
         <p><strong>Required skills:</strong> {{ job.required_skills }}</p>
-        <a href="{% url 'upload_resume' job.id %}" class="nav-link" style="display:inline-block; margin-top:8px;">Upload Resumes for this Job</a>
-      </div>
+         <a href="{% url 'upload_resume' %}?job_id={{ job.id }}" class="btn-ghost">Upload Resumes for this Job</a>
+  <a href="{% url 'candidate_ranking' %}?job_id={{ job.id }}" class="btn-ghost" style="margin-left:8px;">View Ranked Candidates</a>
 
       <h3 style="margin-bottom:12px;">Applicants ({{ resumes|length }})</h3>
       <div class="stat-grid">

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Match Result — MatchRank AI{% endblock %}
+{% block body %}
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>MatchRank AI</h1>
+        <span>Resume Intelligence</span>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-section-title">Core Modules</div>
+      <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+      <a href="{% url 'upload_resume' %}" class="nav-link">Upload Resume</a>
+      <a href="{% url 'candidate_ranking' %}" class="nav-link active">Candidate Rankings</a>
+
+      <div class="nav-section-title">Directory</div>
+      <a href="{% url 'post_job' %}" class="nav-link">Post Job</a>
+      <a href="{% url 'job_list' %}" class="nav-link">Job Catalog</a>
+      <a href="{% url 'candidates' %}" class="nav-link">Candidates</a>
+    </nav>
+    <div class="sidebar-footer">
+      Signed in as {{ user.username }}<br>
+      <a href="{% url 'logout' %}" style="color:#fff;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="top-navbar">
+      <div class="page-title-area">
+        <h2>Match Result</h2>
+        <p>How well this resume fits the selected job</p>
+      </div>
+      <a href="{% url 'candidate_ranking' %}?job_id={{ job.id }}" class="btn-secondary" style="text-decoration:none;">← Back to ranking</a>
+    </header>
+
+    <main class="content-body">
+
+      <!-- 1. Overview -->
+      <div class="pipeline-card result-hero">
+        <div class="score-ring {% if not match.is_suitable %}low{% endif %}" style="--p: {{ match.score_percent|floatformat:0 }};">
+          <div class="score-ring-inner">
+            <span class="ring-value">{{ match.score_percent|floatformat:0 }}%</span>
+            <span class="ring-label">match</span>
+          </div>
+        </div>
+
+        <div class="hero-info">
+          <h2>{{ resume.candidate_name|default:"Unnamed candidate" }}</h2>
+          <p class="hero-meta">{{ resume.email|default:"no email found" }}</p>
+          <p class="hero-meta">Applied for <strong>{{ job.title }}</strong></p>
+          <div class="hero-badges">
+            <span class="verdict {% if match.is_suitable %}yes{% else %}no{% endif %}">{% if match.is_suitable %}Suitable{% else %}Not Suitable{% endif %}</span>
+            <span class="rank-chip">Rank #{{ rank }} of {{ total }} for this job</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a href="{{ resume.resume_file.url }}" target="_blank" class="btn btn-primary" style="width:auto;">View Resume</a>
+        </div>
+      </div>
+
+      <!-- 2. Strengths and gaps -->
+      <div class="two-col">
+        <div class="pipeline-card">
+          <h3>✅ Strengths</h3>
+          <ul class="point-list good">
+            {% for s in explain.strengths %}<li>{{ s }}</li>{% empty %}<li class="muted">Nothing stands out yet.</li>{% endfor %}
+          </ul>
+        </div>
+        <div class="pipeline-card">
+          <h3>⚠️ Gaps</h3>
+          <ul class="point-list bad">
+            {% for g in explain.gaps %}<li>{{ g }}</li>{% empty %}<li class="muted">No gaps found.</li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3. Skills -->
+      <div class="pipeline-card" style="margin-top:20px;">
+        <h3>🧩 Skills</h3>
+
+        {% if explain.has_required %}
+          <p class="chip-title">Required skills — {{ explain.matched|length }} of {{ explain.required_total }} found</p>
+          <div class="chips">
+            {% for s in explain.matched %}<span class="chip chip-ok">✓ {{ s }}</span>{% endfor %}
+            {% for need, via in explain.related %}<span class="chip chip-rel" title="Not listed, but {{ via }} is in the same field">≈ {{ need }} <small>(has {{ via }})</small></span>{% endfor %}
+            {% for s in explain.missing %}<span class="chip chip-miss">✗ {{ s }}</span>{% endfor %}
+          </div>
+          <p class="legend">✓ found in resume &nbsp;•&nbsp; ≈ related skill from the same field &nbsp;•&nbsp; ✗ not found</p>
+        {% else %}
+          <p class="muted">This job has no required skills listed, so skills are compared against the job title and description instead.</p>
+        {% endif %}
+
+        {% if explain.extra %}
+          <p class="chip-title" style="margin-top:18px;">Other relevant skills found in the resume</p>
+          <div class="chips">
+            {% for s in explain.extra %}<span class="chip">{{ s }}</span>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- 4. Model inputs + candidate facts -->
+      <div class="two-col" style="margin-top:20px;">
+        <div class="pipeline-card">
+          <h3>📊 What the model looked at</h3>
+          {% for f in factors %}
+            <div class="factor">
+              <div class="factor-head"><span>{{ f.label }}</span><strong>{{ f.percent }}%</strong></div>
+              <div class="score-bar-track"><div class="score-bar-fill" style="width: {{ f.percent }}%;"></div></div>
+              <p class="factor-hint">{{ f.hint }}</p>
+            </div>
+          {% endfor %}
+                   <p class="legend">These bars are the inputs the Random Forest looked at, not a point-by-point split of the score.</p>
+
+          <h4 class="blend-title">How the final match is built</h4>
+          <div class="blend">
+            <div class="blend-row"><span>Model probability (Random Forest)</span><strong>{{ explain.rf_percent }}%</strong></div>
+            {% if explain.fit_percent is not None %}
+              <div class="blend-row"><span>Required-skill fit</span><strong>{{ explain.fit_percent }}%</strong></div>
+            {% endif %}
+            {% if explain.core_missing %}
+              <div class="blend-row warn"><span>Core skill missing ({{ explain.core_missing|join:", " }})</span><strong>× 0.6</strong></div>
+            {% endif %}
+            <div class="blend-row total"><span>Final match</span><strong>{{ match.score_percent }}%</strong></div>
+          </div>
+          <p class="legend">Final match = 60% model probability + 40% required-skill fit. If the skill the job is named after is missing from the resume, the result is reduced by 40%.</p>
+
+        <div class="pipeline-card">
+          <h3>🧑‍💼 Candidate facts</h3>
+          <div class="fact-grid">
+            <div class="fact"><span>Experience</span><strong>{{ resume.experience_years }} yrs</strong><small>{% if job.experience_required %}needs {{ job.experience_required }}{% else %}no minimum set{% endif %}</small></div>
+            <div class="fact"><span>Education</span><strong>{{ resume.education_level|default:"Not found" }}</strong></div>
+            <div class="fact"><span>Certification</span><strong>{% if match.certification_present >= 0.5 %}Yes{% else %}None found{% endif %}</strong></div>
+            <div class="fact"><span>Uploaded</span><strong>{{ resume.uploaded_at|date:"d M Y" }}</strong></div>
+          </div>
+          <p class="legend">Experience is read from phrases like "3 years" in the resume. 0 means no such phrase was found.</p>
+        </div>
+      </div>
+
+      <!-- 5. Extracted text -->
+      <details class="pipeline-card extracted" style="margin-top:20px;">
+        <summary>Show extracted resume text</summary>
+        <pre>{{ resume.resume_text|truncatechars:3000 }}</pre>
+      </details>
+
+      <div class="pipeline-actions">
+        <a href="{% url 'upload_resume' %}?job_id={{ job.id }}" class="btn-ghost">Upload another resume for this job</a>
+        <a href="{% url 'candidate_ranking' %}?job_id={{ job.id }}" class="btn btn-primary" style="width:auto;">View full ranking</a>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

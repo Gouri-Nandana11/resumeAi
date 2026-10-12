@@ -1,0 +1,207 @@
+```html
+{% extends "base.html" %}
+{% block title %}Candidate Rankings — MatchRank AI{% endblock %}
+
+{% block body %}
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1>MatchRank AI</h1>
+                <span>Resume Intelligence</span>
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav-section-title">Core Modules</div>
+
+            <a href="{% url 'dashboard' %}" class="nav-link">
+                Dashboard
+            </a>
+
+            <a href="{% url 'upload_resume' %}" class="nav-link">
+                Upload Resume
+            </a>
+
+            <a href="{% url 'candidate_ranking' %}" class="nav-link active">
+                Candidate Rankings
+            </a>
+
+            <div class="nav-section-title">Directory</div>
+
+            <a href="{% url 'post_job' %}" class="nav-link">
+                Post Job
+            </a>
+
+            <a href="{% url 'job_list' %}" class="nav-link">
+                Job Catalog
+            </a>
+
+            <a href="{% url 'candidates' %}" class="nav-link">
+                Candidates
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            Signed in as {{ user.username }}
+            <br>
+            <a href="{% url 'logout' %}" style="color:#fff;">
+                Log out
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+
+        <header class="top-navbar">
+            <div class="page-title-area">
+                <h2>Candidate Rankings</h2>
+                <p>
+                    Candidates ranked by their matching scores,
+                    highest first
+                </p>
+            </div>
+        </header>
+
+        <main class="content-body">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="success-alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="get" class="pipeline-card"
+                  style="margin-bottom:20px;">
+
+                <label for="job_id" class="step-label">
+                    Select a job to see its ranked candidates:
+                </label>
+
+                <select id="job_id" name="job_id"
+                        class="job-select"
+                        onchange="this.form.submit()">
+
+                    <option value="">— Choose a job —</option>
+
+                    {% for job in jobs %}
+                        <option value="{{ job.id }}"
+                            {% if selected_job and selected_job.id == job.id %}
+                                selected
+                            {% endif %}>
+                            {{ job.title }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </form>
+
+            {% if selected_job %}
+
+                <div class="pipeline-card">
+
+                    <h3>🏆 {{ selected_job.title }}</h3>
+
+                    <div class="rank-summary">
+                        <span>
+                            <strong>{{ ranked_matches|length }}</strong>
+                            candidates
+                        </span>
+
+                        <span>
+                            <strong>{{ suitable_count }}</strong>
+                            predicted Suitable
+                        </span>
+                    </div>
+
+                    {% for match in ranked_matches %}
+
+                        <div class="candidate-row">
+
+                            <div class="rank-badge
+                                {% if forloop.counter == 1 %}rank-1
+                                {% elif forloop.counter == 2 %}rank-2
+                                {% elif forloop.counter == 3 %}rank-3
+                                {% endif %}">
+                                {{ forloop.counter }}
+                            </div>
+
+                            <div class="candidate-info">
+
+                                <div class="candidate-name">
+                                    <a href="{% url 'match_detail' match.id %}"
+                                       class="name-link">
+                                        {{ match.resume.candidate_name|default:"Unnamed candidate" }}
+                                    </a>
+                                </div>
+
+                                <div class="candidate-meta">
+                                    {{ match.resume.email|default:"No email found" }}
+                                    •
+                                    {{ match.resume.experience_years|default:0 }}
+                                    years experience
+                                </div>
+
+                                <div class="score-bar-track">
+                                    <div class="score-bar-fill
+                                        {% if not match.is_suitable %}low{% endif %}"
+                                        style="width:{{ match.score_percent|default:0 }}%">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="score-box">
+                                <div class="score-value">
+                                    {{ match.score_percent|default:0 }}%
+                                </div>
+
+                                <span class="verdict
+                                    {% if match.is_suitable %}yes
+                                    {% else %}no
+                                    {% endif %}">
+                                    {% if match.is_suitable %}
+                                        Suitable
+                                    {% else %}
+                                        Not Suitable
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <p style="color:var(--muted);">
+                            No resumes have been analysed for this job yet.
+                        </p>
+
+                    {% endfor %}
+
+                    <div class="pipeline-actions">
+                        <a href="{% url 'upload_resume' %}?job_id={{ selected_job.id }}"
+                           class="btn btn-primary"
+                           style="width:auto;">
+                            Upload More Resumes
+                        </a>
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <p style="color:var(--muted);">
+                    Select a job above to see its ranked candidates.
+                </p>
+
+            {% endif %}
+
+        </main>
+    </div>
+</div>
+{% endblock %}
+```

@@ -52,7 +52,7 @@
           <select name="job_id" class="job-select">
             <option value="">✨ Compare with All Jobs (Top 5 Job Recommendations)</option>
             {% for job in jobs %}
-              <option value="{{ job.id }}">{{ job.title }}</option>
+               <option value="{{ job.id }}" {% if preselected_job_id == job.id|stringformat:"s" %}selected{% endif %}>{{ job.title }}</option>
             {% endfor %}
           </select>
           <p class="helper-text">💡 Leave empty to compare the resume against all {{ jobs.count }}+ jobs and get Top 5 Recommended Positions.</p>

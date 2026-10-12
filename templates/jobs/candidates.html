@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Candidates — MatchRank AI{% endblock %}
+{% block body %}
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>MatchRank AI</h1>
+        <span>Resume Intelligence</span>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-section-title">Core Modules</div>
+      <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+      <a href="{% url 'upload_resume' %}" class="nav-link">Upload Resume</a>
+      <a href="{% url 'candidate_ranking' %}" class="nav-link">Candidate Rankings</a>
+
+      <div class="nav-section-title">Directory</div>
+      <a href="{% url 'post_job' %}" class="nav-link">Post Job</a>
+      <a href="{% url 'job_list' %}" class="nav-link">Job Catalog</a>
+      <a href="{% url 'candidates' %}" class="nav-link active">Candidates</a>
+    </nav>
+    <div class="sidebar-footer">
+      Signed in as {{ user.username }}<br>
+      <a href="{% url 'logout' %}" style="color:#fff;">Log out</a>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="top-navbar">
+      <div class="page-title-area">
+        <h2>Candidates</h2>
+        <p>Every resume that has been uploaded and analysed</p>
+      </div>
+    </header>
+
+    <main class="content-body">
+      <form method="get" class="pipeline-card" style="margin-bottom:20px;">
+        <div class="filter-row">
+          <input type="text" name="q" value="{{ q }}" placeholder="Search by name or email" class="search-input">
+          <select name="job_id" class="job-select" style="margin-bottom:0;">
+            <option value="">All jobs</option>
+            {% for job in jobs %}
+              <option value="{{ job.id }}" {% if selected_job_id == job.id|stringformat:"s" %}selected{% endif %}>{{ job.title }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary" style="width:auto;">Search</button>
+          <a href="{% url 'candidates' %}" class="btn-secondary" style="text-decoration:none;">Reset</a>
+        </div>
+      </form>
+
+      <div class="pipeline-card">
+        <h3>👥 {{ matches|length }} candidate{{ matches|length|pluralize }}</h3>
+
+        {% if matches %}
+        <div style="overflow-x:auto;">
+          <table class="cand-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Experience</th>
+                <th>Education</th>
+                <th>Applied for</th>
+                <th>Score</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in matches %}
+              <tr>
+                <td class="cand-name">{{ m.resume.candidate_name|default:"Unnamed candidate" }}</td>
+                <td>{{ m.resume.email|default:"—" }}</td>
+                <td>{{ m.resume.experience_years }} yrs</td>
+                <td>{{ m.resume.education_level|default:"—" }}</td>
+                <td>{{ m.job.title }}</td>
+                <td>
+                  <strong>{{ m.score_percent }}%</strong><br>
+                  <span class="verdict {% if m.is_suitable %}yes{% else %}no{% endif %}">{% if m.is_suitable %}Suitable{% else %}Not Suitable{% endif %}</span>
+                </td>
+                <td><a href="{{ m.resume.resume_file.url }}" target="_blank" class="btn-ghost" style="padding:6px 12px;">View Resume</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          <p style="color:var(--muted);">No candidates found.</p>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

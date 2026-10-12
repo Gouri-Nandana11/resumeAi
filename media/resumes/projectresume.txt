@@ -1,0 +1,10 @@
+Junior Full Stack Developer with project experience building responsive interfaces and database-backed web applications.
+
+Technical Skills:
+JavaScript, React, Node.js, Express.js, MongoDB, HTML5, CSS3, Bootstrap, REST APIs, Git
+
+Experience:
+Web Development Intern | 1 year
+Built React UI and Express APIs connected to MongoDB.
+
+Education: Bachelors

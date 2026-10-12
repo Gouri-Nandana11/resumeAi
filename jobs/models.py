@@ -40,12 +40,11 @@ class Resume(models.Model):
 
 
 class MatchResult(models.Model):
-    """Stores the computed feature values and model predictions for one resume against one job."""
+    """Features and Random Forest prediction for one resume against one job."""
 
     resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='match_results')
     job = models.ForeignKey(JobPosting, on_delete=models.CASCADE, related_name='match_results')
 
-    # feature values, matching rf_model / xgb_model's expected input columns
     semantic_skill_score = models.FloatField(default=0.0)
     skill_coverage = models.FloatField(default=0.0)
     tfidf_similarity = models.FloatField(default=0.0)
@@ -53,10 +52,8 @@ class MatchResult(models.Model):
     education_encoded = models.FloatField(default=0.0)
     certification_present = models.FloatField(default=0.0)
 
-    # model outputs
-    rf_prediction = models.FloatField(null=True, blank=True, help_text="RandomForest predicted probability of shortlist")
-    xgb_prediction = models.FloatField(null=True, blank=True, help_text="XGBoost predicted probability of shortlist")
-    final_score = models.FloatField(null=True, blank=True, help_text="Score used for ranking candidates")
+    rf_prediction = models.FloatField(null=True, blank=True)
+    final_score = models.FloatField(null=True, blank=True, help_text="Ranking key (same as rf_prediction)")
 
     computed_at = models.DateTimeField(auto_now_add=True)
 
@@ -64,5 +61,13 @@ class MatchResult(models.Model):
         unique_together = ('resume', 'job')
         ordering = ['-final_score']
 
+    @property
+    def score_percent(self):
+        return round((self.final_score or 0) * 100, 1)
+
+    @property
+    def is_suitable(self):
+        return (self.final_score or 0) >= 0.5
+
     def __str__(self):
-        return f"{self.resume.candidate_name or 'Unnamed'} vs {self.job.title}: {self.final_score}"
+        return f"{self.resume.candidate_name or 'Unnamed'} vs {self.job.title}: {self.score_percent}%"

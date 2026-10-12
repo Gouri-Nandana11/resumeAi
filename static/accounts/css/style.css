@@ -418,3 +418,172 @@ h1, h2, h3, .brand-text h1 {
   font-size: 13.5px;
   margin-bottom: 16px;
 }
+/* ---------- Candidate ranking ---------- */
+.rank-summary {
+  display: flex;
+  gap: 24px;
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: -6px 0 18px;
+}
+
+.rank-summary strong { color: var(--text); }
+
+.candidate-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.rank-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+  background: var(--brand);
+}
+
+.rank-badge.rank-1 { background: #d4a017; }
+.rank-badge.rank-2 { background: #9ca3af; }
+.rank-badge.rank-3 { background: #b4793f; }
+
+.candidate-info { flex: 1; min-width: 0; }
+.candidate-name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+.candidate-meta { font-size: 12.5px; color: var(--muted); }
+
+.score-bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.score-bar-fill { height: 100%; background: var(--brand); border-radius: 3px; }
+.score-bar-fill.low { background: #f59e0b; }
+
+.score-box { text-align: right; min-width: 110px; }
+.score-value { font-size: 20px; font-weight: 700; font-family: 'Outfit', sans-serif; }
+
+.verdict {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.verdict.yes { background: #dcfce7; color: #15803d; }
+.verdict.no { background: #fef3c7; color: #b45309; }
+/* ---------- Match result page ---------- */
+.top-navbar .btn-secondary { margin-left: auto; }
+
+.result-hero { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; margin-bottom: 20px; }
+
+.score-ring {
+  --p: 0; --c: var(--brand);
+  width: 128px; height: 128px; border-radius: 50%; flex-shrink: 0;
+  background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--border) 0);
+  display: flex; align-items: center; justify-content: center;
+}
+.score-ring.low { --c: #f59e0b; }
+.score-ring-inner {
+  width: 98px; height: 98px; border-radius: 50%; background: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.ring-value { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+.ring-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.hero-info { flex: 1; min-width: 220px; }
+.hero-info h2 { margin: 0 0 6px; font-size: 24px; }
+.hero-meta { margin: 0 0 4px; color: var(--muted); font-size: 14px; }
+.hero-badges { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.rank-chip { font-size: 12.5px; font-weight: 600; color: var(--brand); background: var(--brand-light); padding: 4px 12px; border-radius: 999px; }
+
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+.point-list { list-style: none; margin: 0; padding: 0; }
+.point-list li { padding: 8px 0 8px 22px; position: relative; font-size: 14px; border-bottom: 1px solid var(--border); }
+.point-list li:last-child { border-bottom: none; }
+.point-list li::before { position: absolute; left: 0; font-weight: 700; }
+.point-list.good li::before { content: "✓"; color: #15803d; }
+.point-list.bad li::before { content: "!"; color: #b45309; }
+.muted { color: var(--muted); }
+
+.chip-title { font-weight: 600; font-size: 13.5px; margin: 0 0 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 500; background: #f3f4f6; color: var(--text); }
+.chip small { color: inherit; opacity: .75; }
+.chip-ok { background: #dcfce7; color: #15803d; }
+.chip-rel { background: #fef3c7; color: #b45309; }
+.chip-miss { background: #fee2e2; color: #b91c1c; }
+.legend { color: var(--muted); font-size: 12px; margin: 14px 0 0; }
+
+.factor { margin-bottom: 16px; }
+.factor-head { display: flex; justify-content: space-between; font-size: 13.5px; }
+.factor-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+
+.fact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fact { background: #f9fafb; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.fact span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.fact strong { font-size: 15px; }
+.fact small { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+.extracted summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.extracted pre { white-space: pre-wrap; font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--muted); margin: 14px 0 0; max-height: 320px; overflow-y: auto; }
+/* ---------- Candidates page ---------- */
+.filter-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.search-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.cand-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+
+.cand-table th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cand-table td { padding: 14px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.cand-table tr:last-child td { border-bottom: none; }
+.cand-name { font-weight: 600; }
+
+.name-link { color: var(--text); text-decoration: none; }
+.name-link:hover { color: var(--brand); text-decoration: underline; }
+/* ---------- Score blend ---------- */
+.blend-title { margin: 22px 0 10px; font-size: 14px; }
+.blend { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.blend-row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; font-size: 13.5px; border-bottom: 1px solid var(--border); }
+.blend-row:last-child { border-bottom: none; }
+.blend-row.warn { background: #fffbeb; color: #b45309; }
+.blend-row.total { background: var(--brand-light); font-size: 14.5px; }

@@ -88,31 +88,26 @@ def parse_required_skills(required_skills_str):
 
 
 def expand_job_skills(job_title, job_description, required_skills):
-    """
-    Expand job skills using:
-    - required_skills field
-    - skills mentioned in description
-    - frontend/backend role keywords
-    - skill_domain_db title links
-    """
     expanded = set(required_skills or [])
     title = _clean_text(job_title)
     desc = _clean_text(job_description)
     combined = f"{title} {desc}"
 
-    # skills mentioned in text
     for skill in list(skill_domain_db.keys()) + FRONTEND_SKILLS + BACKEND_SKILLS:
         skill_l = str(skill).lower().strip()
         if skill_l and re.search(r"\b" + re.escape(skill_l) + r"\b", combined):
             expanded.add(skill_l)
 
-    # explicit role expansion
     if any(w in combined for w in ["backend", "back-end", "back end"]):
         expanded.update(BACKEND_SKILLS)
     if any(w in combined for w in ["frontend", "front-end", "front end"]):
         expanded.update(FRONTEND_SKILLS)
 
-    # if title matches known roles in skill_domain_db values, add those skills
+    # FULL STACK
+    if any(w in combined for w in ["full stack", "fullstack", "full-stack"]):
+        expanded.update(FRONTEND_SKILLS)
+        expanded.update(BACKEND_SKILLS)
+
     for skill, roles in skill_domain_db.items():
         for role in roles:
             role_l = str(role).lower()
@@ -165,9 +160,9 @@ def compute_experience_match(resume_experience_years, job_experience_required):
     except (TypeError, ValueError):
         return 0.0
 
-    # If job does not specify experience, give neutral score (not perfect)
+    # Training never had 0-required jobs; treat "no requirement" as full match
     if req <= 0:
-        return 0.5
+        return 1.0
 
     return round(min(cand / req, 1.0), 4)
 

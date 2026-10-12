@@ -1,0 +1,6 @@
+Software developer experienced in server-side applications.
+
+Skills: Flask, MySQL, Python, API development, Docker, Git
+
+Projects:
+Built backend services using Flask and MySQL with REST endpoints.
